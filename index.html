@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wiliams Agroservicios - Subida de Imágenes</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f8fb;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .encabezado1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      height: 100px;
+      background-color: #10448c;
+      padding: 0 20px;
+    }
+
+    .logo {
+      position: absolute;
+      left: 20px;
+      height: 80px;
+    }
+
+    .titulo {
+      margin: 0;
+      font-size: 28px;
+      color: white;
+      text-align: center;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    input[type="file"] {
+      background-color: #e3f2fd;
+      border: 2px dashed #10448c;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 30px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .btn {
+      background-color: #10448c;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .btn:hover {
+      background-color: #0d356e;
+    }
+
+    .preview {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .preview img {
+      height: 120px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      object-fit: contain;
+    }
+
+    .footer {
+      background-color: #22395f;
+      color: white;
+      text-align: center;
+      padding: 1.5rem 20px;
+    }
+
+    .footer .contact {
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .footer .social a {
+      margin: 0 8px;
+      color: white;
+      font-size: 18px;
+      transition: color 0.3s ease;
+    }
+
+    .footer .social a:hover {
+      color: #64b5f6;
+    }
+
+    @media (max-width: 600px) {
+      .logo {
+        height: 60px;
+      }
+      .titulo {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="encabezado1">
+    <img src="LogoByN.png" alt="Logo" class="logo">
+    <h1 class="titulo">Wiliams Agroservicios</h1>
+  </div>
+
+  <main>
+    <h2>Subí tus imágenes</h2>
+    <input type="file" id="imagenInput" multiple accept="image/*">
+    <div class="preview" id="preview"></div>
+    <button class="btn" onclick="descargarTodas()">Descargar todas (174px de alto)</button>
+  </main>
+
+  <footer class="footer">
+    <div class="contact">
+      <div><i class="fab fa-whatsapp"></i> 03402 1570009</div>
+      <div><i class="fab fa-whatsapp"></i> 03402 15571888</div>
+      <div><i class="fas fa-envelope"></i> arroyoseco@williamsentregas.com.ar</div>
+    </div>
+    <div class="social">
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-x-twitter"></i></a>
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+  </footer>
+
+  <script>
+    const input = document.getElementById("imagenInput");
+    const preview = document.getElementById("preview");
+    const alturaPixels = 174;
+
+    let imagenes = [];
+
+    input.addEventListener("change", (e) => {
+      preview.innerHTML = "";
+      imagenes = [];
+
+      Array.from(e.target.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            imagenes.push({ file, dataUrl: img.src });
+            const mini = document.createElement("img");
+            mini.src = img.src;
+            preview.appendChild(mini);
+          };
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    function descargarTodas() {
+      imagenes.forEach(({ file, dataUrl }) => {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = () => {
+          const ratio = img.width / img.height;
+          const canvas = document.createElement("canvas");
+          canvas.height = alturaPixels;
+          canvas.width = alturaPixels * ratio;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob((blob) => {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = file.name.replace(/\.[^/.]+$/, "") + "_174px.png";
+            a.click();
+          }, "image/png");
+        };
+      });
+    }
+  </script>
+</body>
+</html>
